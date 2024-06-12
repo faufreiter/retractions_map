@@ -1,0 +1,2036 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            #map {
+                width: 100%;
+                height: 100%;
+            }
+            </style>
+
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/LocationsRecordID_2.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:20, minZoom:1
+        }).fitBounds([[-28.493882667025336,-24.336377079246958],[64.73353969712348,179.24792029314776]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        document.querySelector(".leaflet-popup-pane").addEventListener("load", function(event) {
+          var tagName = event.target.tagName,
+            popup = map._popup;
+          // Also check if flag is already set.
+          if (tagName === "IMG" && popup && !popup._updated) {
+            popup._updated = true; // Set flag to prevent looping.
+            popup.update();
+          }
+        }, true);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+            map.setMaxBounds(map.getBounds());
+        }
+        map.createPane('pane_GoogleSatellite_0');
+        map.getPane('pane_GoogleSatellite_0').style.zIndex = 400;
+        var layer_GoogleSatellite_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleSatellite_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 20,
+        });
+        layer_GoogleSatellite_0;
+        map.addLayer(layer_GoogleSatellite_0);
+        map.createPane('pane_EsriLightGray_1');
+        map.getPane('pane_EsriLightGray_1').style.zIndex = 401;
+        var layer_EsriLightGray_1 = L.tileLayer('https://server.arcgisonline.com/arcgis/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+            pane: 'pane_EsriLightGray_1',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 20,
+        });
+        layer_EsriLightGray_1;
+        map.addLayer(layer_EsriLightGray_1);
+        function pop_LocationsRecordID_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Record ID</th>\
+                        <td>' + (feature.properties['Record ID'] !== null ? autolinker.link(feature.properties['Record ID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Title</th>\
+                        <td>' + (feature.properties['Title'] !== null ? autolinker.link(feature.properties['Title'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Institution</th>\
+                        <td>' + (feature.properties['Institution'] !== null ? autolinker.link(feature.properties['Institution'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Journal</th>\
+                        <td>' + (feature.properties['Journal'] !== null ? autolinker.link(feature.properties['Journal'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Author</th>\
+                        <td>' + (feature.properties['Author'] !== null ? autolinker.link(feature.properties['Author'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Institution_Last_Two</th>\
+                        <td>' + (feature.properties['Institution_Last_Two'] !== null ? autolinker.link(feature.properties['Institution_Last_Two'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
+        }
+
+        function style_LocationsRecordID_2_0(feature) {
+            switch(String(feature.properties['Record ID'])) {
+                case '242':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(48,18,59,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '636':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(52,27,82,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '655':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(55,37,104,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '656':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(58,46,124,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '657':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(61,54,142,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '658':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(64,63,160,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '1024':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(66,72,176,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '1504':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(68,81,190,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '1654':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(69,89,203,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '2511':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(70,97,214,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '3102':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(70,105,225,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '3588':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(71,114,234,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '3589':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(71,121,241,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '3960':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(70,129,247,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '4136':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(69,137,252,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '4679':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(67,145,254,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '4938':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(64,153,255,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '5283':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(59,160,253,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '5345':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(55,169,250,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '6077':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(48,176,245,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '6114':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(43,184,239,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '6572':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(38,191,232,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '6807':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(33,198,224,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '7200':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(28,205,216,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '8014':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(26,212,208,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '8144':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(24,217,200,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '8551':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(24,222,191,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '9911':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(25,227,184,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '10803':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(30,232,177,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '10938':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(36,236,168,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '12329':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(43,240,159,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '12485':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(52,243,149,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '12494':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(63,246,138,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '12497':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(74,248,128,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '12606':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(86,250,118,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '12609':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(98,252,107,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '13422':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(111,254,97,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '13652':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(123,255,87,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '16481':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(135,255,79,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '16858':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(145,255,71,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '18601':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(156,254,64,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '18927':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(164,252,60,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '21246':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(172,251,56,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '22918':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(181,248,54,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '29372':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(189,245,52,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '31469':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(196,241,52,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '33310':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(204,236,52,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '39837':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(211,232,53,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '43679':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,226,54,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '45868':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(225,221,55,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50059':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(231,215,57,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50060':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(236,209,58,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50061':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(241,202,58,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50062':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(245,196,58,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50063':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(249,189,57,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50064':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(251,183,55,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50065':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,175,53,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50066':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(254,167,50,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50067':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(254,158,47,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50068':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(254,149,43,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50069':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(253,140,39,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50082':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(252,131,35,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50083':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(249,121,30,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50084':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(247,112,27,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50085':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(244,103,23,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50086':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(241,93,19,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50087':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(237,85,16,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50102':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(234,77,13,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50104':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(229,70,11,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50105':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(224,64,9,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50106':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(219,58,7,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50108':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(213,52,5,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50109':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(206,45,4,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50110':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(200,40,3,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50111':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(193,35,2,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50112':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(185,30,2,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50113':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(177,25,1,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50114':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(168,21,1,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50115':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(159,17,1,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50117':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(150,13,1,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50119':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(140,9,2,1.0)',
+                interactive: true,
+            }
+                    break;
+                case '50319':
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(129,6,2,1.0)',
+                interactive: true,
+            }
+                    break;
+                default:
+                    return {
+                pane: 'pane_LocationsRecordID_2',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(122,4,3,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_LocationsRecordID_2');
+        map.getPane('pane_LocationsRecordID_2').style.zIndex = 402;
+        map.getPane('pane_LocationsRecordID_2').style['mix-blend-mode'] = 'normal';
+        var layer_LocationsRecordID_2 = new L.geoJson(json_LocationsRecordID_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_LocationsRecordID_2',
+            layerName: 'layer_LocationsRecordID_2',
+            pane: 'pane_LocationsRecordID_2',
+            onEachFeature: pop_LocationsRecordID_2,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_LocationsRecordID_2_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_LocationsRecordID_2);
+        map.addLayer(layer_LocationsRecordID_2);
+        setBounds();
+        var i = 0;
+        layer_LocationsRecordID_2.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['Record ID'] !== null?String('<div style="color: #323232; font-size: 10pt; font-family: \'Liberation Sans\', sans-serif;">' + layer.feature.properties['Record ID']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_LocationsRecordID_2'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"Institution": "str","Journal": "str","Institution_Last_Two": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+        var i = 0;
+        layer_LocationsRecordID_2.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['Record ID'] !== null?String('<div style="color: #323232; font-size: 10pt; font-family: \'Liberation Sans\', sans-serif;">' + layer.feature.properties['Record ID']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_LocationsRecordID_2'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Institution = document.createElement('div');
+            div_Institution.id = "div_Institution";
+            div_Institution.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Institution);
+            sel_Institution = document.createElement('select');
+            sel_Institution.multiple = true;
+            sel_Institution.size = 10;
+            sel_Institution.id = "sel_Institution";
+            var Institution_options_str = "<option value='' unselected></option>";
+            sel_Institution.onchange = function(){filterFunc()};
+            Institution_options_str  += '<option value="&apos;Carol Davila&apos; University of Medicine and Pharmacy, Bucharest">&apos;Carol Davila&apos; University of Medicine and Pharmacy, Bucharest</option>';
+            Institution_options_str  += '<option value="&apos;Dr. Ion Stoia&apos; Clinical Center for Rheumatic Diseases, Bucharest">&apos;Dr. Ion Stoia&apos; Clinical Center for Rheumatic Diseases, Bucharest</option>';
+            Institution_options_str  += '<option value="&apos;Titu Maiorescu&apos; University, Faculty of Medicine, Bucharest">&apos;Titu Maiorescu&apos; University, Faculty of Medicine, Bucharest</option>';
+            Institution_options_str  += '<option value="Academy of animal husbandry and Veterinary Sciences, Qinghai University, Xining, Qinghai, China">Academy of animal husbandry and Veterinary Sciences, Qinghai University, Xining, Qinghai, China</option>';
+            Institution_options_str  += '<option value="Beijing Foreign Studies University, International Business School, Beijing, China">Beijing Foreign Studies University, International Business School, Beijing, China</option>';
+            Institution_options_str  += '<option value="BioXell SpA, Milan, Italy">BioXell SpA, Milan, Italy</option>';
+            Institution_options_str  += '<option value="Booth School of Business, University of Chicago, Chicago, Illinois">Booth School of Business, University of Chicago, Chicago, Illinois</option>';
+            Institution_options_str  += '<option value="CU Shah Medical College and Hospital, Surendranagar, Gujarat, India">CU Shah Medical College and Hospital, Surendranagar, Gujarat, India</option>';
+            Institution_options_str  += '<option value="Center for Neurodegenerative Disease Research, Department of Pathology and Laboratory Medicine, University of Pennsylvania School of Medicine, USA">Center for Neurodegenerative Disease Research, Department of Pathology and Laboratory Medicine, University of Pennsylvania School of Medicine, USA</option>';
+            Institution_options_str  += '<option value="Chengdu Celec Engineering Co.,Ltd., Chengdu, Sichuan, China">Chengdu Celec Engineering Co.,Ltd., Chengdu, Sichuan, China</option>';
+            Institution_options_str  += '<option value="Chongqing Popjoy Landscape Planning and Design Co., Ltd. Yubei Chongqing, China">Chongqing Popjoy Landscape Planning and Design Co., Ltd. Yubei Chongqing, China</option>';
+            Institution_options_str  += '<option value="Clinical Attachment in Division of General Surgery and Oncology, Royal Liverpool University Hospital, Liverpool, UK">Clinical Attachment in Division of General Surgery and Oncology, Royal Liverpool University Hospital, Liverpool, UK</option>';
+            Institution_options_str  += '<option value="College of Agriculture and Animal Husbandry, Qinghai University, Xining, Qinghai, China">College of Agriculture and Animal Husbandry, Qinghai University, Xining, Qinghai, China</option>';
+            Institution_options_str  += '<option value="College of Architecture, Chongqing Metropolitan College of Science and Technology, Yongchuan, Chongqing, China">College of Architecture, Chongqing Metropolitan College of Science and Technology, Yongchuan, Chongqing, China</option>';
+            Institution_options_str  += '<option value="College of Bioengineering, Chongqing University, Chongqing, China">College of Bioengineering, Chongqing University, Chongqing, China</option>';
+            Institution_options_str  += '<option value="College of Chemistry, Chemical Engineering and Material Science, Soochow University, Suzhou Industrial Park, Suzhou, 215123, PR China">College of Chemistry, Chemical Engineering and Material Science, Soochow University, Suzhou Industrial Park, Suzhou, 215123, PR China</option>';
+            Institution_options_str  += '<option value="College of Chinese Language and Culture, Jinan University,Guangzhou, China">College of Chinese Language and Culture, Jinan University,Guangzhou, China</option>';
+            Institution_options_str  += '<option value="College of Engineering Management, Nueva Ecija University of Science and Technology, Cabanatuan, Philippines">College of Engineering Management, Nueva Ecija University of Science and Technology, Cabanatuan, Philippines</option>';
+            Institution_options_str  += '<option value="College of Environment and Planning, Henan University, Kaifeng, Henan, China">College of Environment and Planning, Henan University, Kaifeng, Henan, China</option>';
+            Institution_options_str  += '<option value="College of Environmental & Chemical Engineering, Dalian Jiaotong University, Dalian, PR China">College of Environmental & Chemical Engineering, Dalian Jiaotong University, Dalian, PR China</option>';
+            Institution_options_str  += '<option value="College of Forestry ,Guizhou University, Guiyang, Guizhou, China">College of Forestry ,Guizhou University, Guiyang, Guizhou, China</option>';
+            Institution_options_str  += '<option value="College of Landscape and EcologyÃ¯Â¼ÂNingbo City College of Vocational Technology, Ningbo Zhejiang, China">College of Landscape and EcologyÃ¯Â¼ÂNingbo City College of Vocational Technology, Ningbo Zhejiang, China</option>';
+            Institution_options_str  += '<option value="College of Life Science and Technology, Harbin Normal University, Harbin, China">College of Life Science and Technology, Harbin Normal University, Harbin, China</option>';
+            Institution_options_str  += '<option value="College of Plant Protection, Hebei Agricultural University, Technological Innovation Center for Biological Control of Crop Diseases and Insect Pests of Hebei Province, 2596 Lekai South Street, Baoding 071001, China">College of Plant Protection, Hebei Agricultural University, Technological Innovation Center for Biological Control of Crop Diseases and Insect Pests of Hebei Province, 2596 Lekai South Street, Baoding 071001, China</option>';
+            Institution_options_str  += '<option value="Departamento de Apoio, ProduÃÂ§ÃÂ£o e SaÃÂºde Animal, Curso de Medicina VeterinÃÂ¡ria, Rua ClÃÂ³vis Pestana, 793, AraÃÂ§atuba, SP, 16.050-680, Brazil">Departamento de Apoio, ProduÃÂ§ÃÂ£o e SaÃÂºde Animal, Curso de Medicina VeterinÃÂ¡ria, Rua ClÃÂ³vis Pestana, 793, AraÃÂ§atuba, SP, 16.050-680, Brazil</option>';
+            Institution_options_str  += '<option value="Department of Agriculture, Payame Noor University (PNU), Tehran, Iran">Department of Agriculture, Payame Noor University (PNU), Tehran, Iran</option>';
+            Institution_options_str  += '<option value="Department of Agriculture, Shabestar Branch, Islamic Azad University, Shabestar, Iran">Department of Agriculture, Shabestar Branch, Islamic Azad University, Shabestar, Iran</option>';
+            Institution_options_str  += '<option value="Department of Agronomy and Plant Breeding, ParsAbad Moghan Branch, Islamic Azad University, ParsAbad Moghan, Iran">Department of Agronomy and Plant Breeding, ParsAbad Moghan Branch, Islamic Azad University, ParsAbad Moghan, Iran</option>';
+            Institution_options_str  += '<option value="Department of Agrotechnology, Faculty of Agriculture, Tarbiat Modares University, Tehran, Iran">Department of Agrotechnology, Faculty of Agriculture, Tarbiat Modares University, Tehran, Iran</option>';
+            Institution_options_str  += '<option value="Department of Anatomy, Seoul National University College of Medicine, Seoul, Korea">Department of Anatomy, Seoul National University College of Medicine, Seoul, Korea</option>';
+            Institution_options_str  += '<option value="Department of Anesthesiology, Jiangxi Cancer Hospital, Nanchang, Jiang Xi, China">Department of Anesthesiology, Jiangxi Cancer Hospital, Nanchang, Jiang Xi, China</option>';
+            Institution_options_str  += '<option value="Department of Anesthesiology, Rural Institute of Medical Science and Research, Saifai, Etawah, Uttar Pradesh, India">Department of Anesthesiology, Rural Institute of Medical Science and Research, Saifai, Etawah, Uttar Pradesh, India</option>';
+            Institution_options_str  += '<option value="Department of Anesthesiology,The Second Xiangya Hospital, Central South University, Changsha, Hu Nan, China">Department of Anesthesiology,The Second Xiangya Hospital, Central South University, Changsha, Hu Nan, China</option>';
+            Institution_options_str  += '<option value="Department of Bacteriology, Institute of Tropical Medicine, Nagasaki University, Nagasaki, Japan">Department of Bacteriology, Institute of Tropical Medicine, Nagasaki University, Nagasaki, Japan</option>';
+            Institution_options_str  += '<option value="Department of Biochemistry, Kathmandu University, Manipal College of Medical Sciences, Pokhara, Nepal">Department of Biochemistry, Kathmandu University, Manipal College of Medical Sciences, Pokhara, Nepal</option>';
+            Institution_options_str  += '<option value="Department of Biochemistry, Kathmandu University, Nepalgunj Medical College, Kohalpur, Nepal">Department of Biochemistry, Kathmandu University, Nepalgunj Medical College, Kohalpur, Nepal</option>';
+            Institution_options_str  += '<option value="Department of Biological and Medical Engineering, ShangLuo University, Shaanxi Shangluo, China">Department of Biological and Medical Engineering, ShangLuo University, Shaanxi Shangluo, China</option>';
+            Institution_options_str  += '<option value="Department of Biology, Gorgan Branch, Islamic Azad University, Gorgan, Iran">Department of Biology, Gorgan Branch, Islamic Azad University, Gorgan, Iran</option>';
+            Institution_options_str  += '<option value="Department of Biology, North Tehran Branch, Islamic Azad University, Tehran, Iran">Department of Biology, North Tehran Branch, Islamic Azad University, Tehran, Iran</option>';
+            Institution_options_str  += '<option value="Department of Biology, Science and Research Branch, Islamic Azad University, Tehran, Iran">Department of Biology, Science and Research Branch, Islamic Azad University, Tehran, Iran</option>';
+            Institution_options_str  += '<option value="Department of Biology, Tehran North Branch, Islamic Azad University, Hakimieh, Tehran, Iran">Department of Biology, Tehran North Branch, Islamic Azad University, Hakimieh, Tehran, Iran</option>';
+            Institution_options_str  += '<option value="Department of Biology. Payame Noor University, Tehran, Iran">Department of Biology. Payame Noor University, Tehran, Iran</option>';
+            Institution_options_str  += '<option value="Department of Chemical Engineering, North Tehran Branch, Islamic Azad University, Tehran, Iran">Department of Chemical Engineering, North Tehran Branch, Islamic Azad University, Tehran, Iran</option>';
+            Institution_options_str  += '<option value="Department of Chemical Pathology, National Hospital, Abuja, Nigeria">Department of Chemical Pathology, National Hospital, Abuja, Nigeria</option>';
+            Institution_options_str  += '<option value="Department of Chemistry, Sichuan University of Science and engineering, Zi gong, PR China">Department of Chemistry, Sichuan University of Science and engineering, Zi gong, PR China</option>';
+            Institution_options_str  += '<option value="Department of Clinical Biochemistry, Vallabhbhai Patel Chest Institute, University of Delhi, Delhi, India">Department of Clinical Biochemistry, Vallabhbhai Patel Chest Institute, University of Delhi, Delhi, India</option>';
+            Institution_options_str  += '<option value="Department of Computer Science and Engineering, Washington University in St. Louis, St. Louis, MO 63130">Department of Computer Science and Engineering, Washington University in St. Louis, St. Louis, MO 63130</option>';
+            Institution_options_str  += '<option value="Department of Dermatology, University of DÃÂ¼sseldorf, DÃÂ¼sseldorf, Germany">Department of Dermatology, University of DÃÂ¼sseldorf, DÃÂ¼sseldorf, Germany</option>';
+            Institution_options_str  += '<option value="Department of Engineering Mechanics, Xi&apos;an Jiaotong University, Xi&apos;an, China">Department of Engineering Mechanics, Xi&apos;an Jiaotong University, Xi&apos;an, China</option>';
+            Institution_options_str  += '<option value="Department of Environmental Sciences and Engineering, Ardabil Branch, Islamic Azad University, Ardabil, Iran">Department of Environmental Sciences and Engineering, Ardabil Branch, Islamic Azad University, Ardabil, Iran</option>';
+            Institution_options_str  += '<option value="Department of Fundamental Courses, Shandong University of Science and Technology, Taian, Shandong, China">Department of Fundamental Courses, Shandong University of Science and Technology, Taian, Shandong, China</option>';
+            Institution_options_str  += '<option value="Department of Genetics, Washington University in St. Louis, St. Louis, MO 63130">Department of Genetics, Washington University in St. Louis, St. Louis, MO 63130</option>';
+            Institution_options_str  += '<option value="Department of Horticultural Science, Faculty of agriculture, University of Tabriz, Tabriz, Iran">Department of Horticultural Science, Faculty of agriculture, University of Tabriz, Tabriz, Iran</option>';
+            Institution_options_str  += '<option value="Department of Horticultural Sciences, School of Agriculture, Shiraz University, Shiraz, Iran">Department of Horticultural Sciences, School of Agriculture, Shiraz University, Shiraz, Iran</option>';
+            Institution_options_str  += '<option value="Department of Inflammatory Diseases, Boehringer Ingelheim Pharmaceuticals, Incorporated, Ridgefield, Connecticut">Department of Inflammatory Diseases, Boehringer Ingelheim Pharmaceuticals, Incorporated, Ridgefield, Connecticut</option>';
+            Institution_options_str  += '<option value="Department of Information Statistics, Kyung-Sung University">Department of Information Statistics, Kyung-Sung University</option>';
+            Institution_options_str  += '<option value="Department of Laboratory Medicine, Chongqing University of Medical Science, Chongqing, China">Department of Laboratory Medicine, Chongqing University of Medical Science, Chongqing, China</option>';
+            Institution_options_str  += '<option value="Department of Mathematics, Alluri Institute of Management Sciences, Hunter Road, Hanamkonda Ã¢ÂÂ 506001, AP, India">Department of Mathematics, Alluri Institute of Management Sciences, Hunter Road, Hanamkonda Ã¢ÂÂ 506001, AP, India</option>';
+            Institution_options_str  += '<option value="Department of Mathematics, Kakatiya University, Vidyaranyapuri, Warangal Ã¢ÂÂ 506009, AP, India">Department of Mathematics, Kakatiya University, Vidyaranyapuri, Warangal Ã¢ÂÂ 506009, AP, India</option>';
+            Institution_options_str  += '<option value="Department of Medical Oncology, University College Hospital, Sousse, Tunisia">Department of Medical Oncology, University College Hospital, Sousse, Tunisia</option>';
+            Institution_options_str  += '<option value="Department of Medicine, National Hospital, Abuja, Nigeria">Department of Medicine, National Hospital, Abuja, Nigeria</option>';
+            Institution_options_str  += '<option value="Department of Microbiology and Biology, Parand branch, Islamic Azad University, Tehran, Iran">Department of Microbiology and Biology, Parand branch, Islamic Azad University, Tehran, Iran</option>';
+            Institution_options_str  += '<option value="Department of Microbiology and Immunology, Institute of Medical Science, The University of Tokyo, Tokyo 108-8639, Japan">Department of Microbiology and Immunology, Institute of Medical Science, The University of Tokyo, Tokyo 108-8639, Japan</option>';
+            Institution_options_str  += '<option value="Department of Microbiology and Immunology, Institute of Medical Science, University of Tokyo, Japan">Department of Microbiology and Immunology, Institute of Medical Science, University of Tokyo, Japan</option>';
+            Institution_options_str  += '<option value="Department of Microbiology, Mahatma Gandhi Medical College & Research Institute, Pondicherry, India">Department of Microbiology, Mahatma Gandhi Medical College & Research Institute, Pondicherry, India</option>';
+            Institution_options_str  += '<option value="Department of Microbiology, North Tehran Branch, Islamic Azad University, Tehran, Iran">Department of Microbiology, North Tehran Branch, Islamic Azad University, Tehran, Iran</option>';
+            Institution_options_str  += '<option value="Department of Molecular Virology, Graduate School of Medicine, Tokyo Medical and Dental University, Tokyo, Japan">Department of Molecular Virology, Graduate School of Medicine, Tokyo Medical and Dental University, Tokyo, Japan</option>';
+            Institution_options_str  += '<option value="Department of Neurology, &apos;Colentina&apos; Clinical Hospital, Bucharest">Department of Neurology, &apos;Colentina&apos; Clinical Hospital, Bucharest</option>';
+            Institution_options_str  += '<option value="Department of Obstetrics & Gynecology, Ain Shams University, Cairo, Egypt">Department of Obstetrics & Gynecology, Ain Shams University, Cairo, Egypt</option>';
+            Institution_options_str  += '<option value="Department of Obstetrics and Gynecology, CHA General Hospital, Pochon CHA University, Seoul, Korea">Department of Obstetrics and Gynecology, CHA General Hospital, Pochon CHA University, Seoul, Korea</option>';
+            Institution_options_str  += '<option value="Department of Ophthalmology, Himalayan Institute of Medical Sciences, Dehradun, Uttaranchal, India">Department of Ophthalmology, Himalayan Institute of Medical Sciences, Dehradun, Uttaranchal, India</option>';
+            Institution_options_str  += '<option value="Department of Orthopaedics, CU Shah Medical College, Surendranagar, Gujarat, India">Department of Orthopaedics, CU Shah Medical College, Surendranagar, Gujarat, India</option>';
+            Institution_options_str  += '<option value="Department of Pathology, Institute of Tropical Medicine, Nagasaki University, Nagasaki 852-8523, Japan">Department of Pathology, Institute of Tropical Medicine, Nagasaki University, Nagasaki 852-8523, Japan</option>';
+            Institution_options_str  += '<option value="Department of Pediatrics, Stanford University School of Medicine, Stanford, California, USA">Department of Pediatrics, Stanford University School of Medicine, Stanford, California, USA</option>';
+            Institution_options_str  += '<option value="Department of Pharmacology, Meenakshi Medical College and Research Institute (Meenakshi University), Enathur, Kancheepuram, Tamil Nadu, India">Department of Pharmacology, Meenakshi Medical College and Research Institute (Meenakshi University), Enathur, Kancheepuram, Tamil Nadu, India</option>';
+            Institution_options_str  += '<option value="Department of Physiology, Kathmandu University, Nepalgunj Medical College, Kohalpur, Nepal">Department of Physiology, Kathmandu University, Nepalgunj Medical College, Kohalpur, Nepal</option>';
+            Institution_options_str  += '<option value="Department of Physiology, UnitÃÂ© de Recherche sur les ComposÃÂ©s antioxydants, Stress Oxydant, ElÃÂ©ments Traces et Maladies MÃÂ©taboliques, Ecole SupÃÂ©rieure des Sciences et Techniques de la SantÃÂ© de Tunis, Tunisia">Department of Physiology, UnitÃÂ© de Recherche sur les ComposÃÂ©s antioxydants, Stress Oxydant, ElÃÂ©ments Traces et Maladies MÃÂ©taboliques, Ecole SupÃÂ©rieure des Sciences et Techniques de la SantÃÂ© de Tunis, Tunisia</option>';
+            Institution_options_str  += '<option value="Department of Plant Protection, Faculty of Agricultural Sciences, Aligarh Muslim University, Aligarh, India">Department of Plant Protection, Faculty of Agricultural Sciences, Aligarh Muslim University, Aligarh, India</option>';
+            Institution_options_str  += '<option value="Department of Plant Sciences, Quaid-i-Azam University Islamabad, Pakistan">Department of Plant Sciences, Quaid-i-Azam University Islamabad, Pakistan</option>';
+            Institution_options_str  += '<option value="Department of Plastic and Reconstructive Surgery, Seoul National University Bundang Hospital, Seongnam, Korea">Department of Plastic and Reconstructive Surgery, Seoul National University Bundang Hospital, Seongnam, Korea</option>';
+            Institution_options_str  += '<option value="Department of Preventive Medicine and AIDS Research and Department of Bacteriology, Institute of Tropical Medicine, Nagasaki University, Nagasaki, Japan">Department of Preventive Medicine and AIDS Research and Department of Bacteriology, Institute of Tropical Medicine, Nagasaki University, Nagasaki, Japan</option>';
+            Institution_options_str  += '<option value="Department of Preventive Medicine and AIDS Research and Department of Bacteriology, USA">Department of Preventive Medicine and AIDS Research and Department of Bacteriology, USA</option>';
+            Institution_options_str  += '<option value="Department of Psychiatry, NHL Medical College, Ahmedabad, Gujarat, India">Department of Psychiatry, NHL Medical College, Ahmedabad, Gujarat, India</option>';
+            Institution_options_str  += '<option value="Department of Statistics, University of Bojnord, Iran">Department of Statistics, University of Bojnord, Iran</option>';
+            Institution_options_str  += '<option value="Department of Tourism and Culture, Anhui Finance and Trade Vocational College, Hefei, China">Department of Tourism and Culture, Anhui Finance and Trade Vocational College, Hefei, China</option>';
+            Institution_options_str  += '<option value="Department of Virology, Faculty of Medicine, University of the Ryukyus, Okinawa">Department of Virology, Faculty of Medicine, University of the Ryukyus, Okinawa</option>';
+            Institution_options_str  += '<option value="Departments of Pathology, Bacteriology, Institute of Tropical Medicine, Nagasaki University, Nagasaki 852-8523, Japan">Departments of Pathology, Bacteriology, Institute of Tropical Medicine, Nagasaki University, Nagasaki 852-8523, Japan</option>';
+            Institution_options_str  += '<option value="Dept.of Physical Education, University of Science and Technology Liaoning, Anshan, China">Dept.of Physical Education, University of Science and Technology Liaoning, Anshan, China</option>';
+            Institution_options_str  += '<option value="Dipartmento di Science Agrarie e Forestali, University di Palermo, Palermo, Italy">Dipartmento di Science Agrarie e Forestali, University di Palermo, Palermo, Italy</option>';
+            Institution_options_str  += '<option value="Division of Business, and Business and Economic Research Institute, Wonkwang University, IkSan, South Korea">Division of Business, and Business and Economic Research Institute, Wonkwang University, IkSan, South Korea</option>';
+            Institution_options_str  += '<option value="Division of Cytokine Signaling, Nagasaki University Graduate School of Biomedical Sciences, Nagasaki 852-8523, Japan">Division of Cytokine Signaling, Nagasaki University Graduate School of Biomedical Sciences, Nagasaki 852-8523, Japan</option>';
+            Institution_options_str  += '<option value="Division of Mathematics & Informational Statistics, and Institute of Basic Natural Science, Wonkwang University, IkSan, South Korea">Division of Mathematics & Informational Statistics, and Institute of Basic Natural Science, Wonkwang University, IkSan, South Korea</option>';
+            Institution_options_str  += '<option value="Divisions of Molecular Virology and Oncology, Control and Prevention of Infectious Diseases, Graduate School of Medicine, Division of Child Health and Welfare, Faculty of Medicine, Department of Endoscopy, University Hospital, University of the Ryukyus, Nishihara, Okinawa 903-0215, Japan">Divisions of Molecular Virology and Oncology, Control and Prevention of Infectious Diseases, Graduate School of Medicine, Division of Child Health and Welfare, Faculty of Medicine, Department of Endoscopy, University Hospital, University of the Ryukyus, Nishihara, Okinawa 903-0215, Japan</option>';
+            Institution_options_str  += '<option value="Divisions of Molecular Virology and Oncology, Control and Prevention of Infectious Diseases, Graduate School of Medicine, Divisions of Child Health and Welfare, Endocrinology and Metabolism, Faculty of Medicine, Department of Endoscopy, University Hospital, University of the Ryukyus, Nishihara, Okinawa 903-0215, Japan">Divisions of Molecular Virology and Oncology, Control and Prevention of Infectious Diseases, Graduate School of Medicine, Divisions of Child Health and Welfare, Endocrinology and Metabolism, Faculty of Medicine, Department of Endoscopy, University Hospital, University of the Ryukyus, Nishihara, Okinawa 903-0215, Japan</option>';
+            Institution_options_str  += '<option value="Dr. Dimitrie Gerota Emergency Hospital, Bucharest, Romania">Dr. Dimitrie Gerota Emergency Hospital, Bucharest, Romania</option>';
+            Institution_options_str  += '<option value="Engineering Technology Research Center of Anti-aging Chinese Herbal Medicine, Fuyang, Anhui, China">Engineering Technology Research Center of Anti-aging Chinese Herbal Medicine, Fuyang, Anhui, China</option>';
+            Institution_options_str  += '<option value="Ernst Boehringer Institut, Vienna, Austria">Ernst Boehringer Institut, Vienna, Austria</option>';
+            Institution_options_str  += '<option value="Experimental Centre, Shandong University of Traditional Chinese Medicine, Jinan, China">Experimental Centre, Shandong University of Traditional Chinese Medicine, Jinan, China</option>';
+            Institution_options_str  += '<option value="Faculty of Computing and Software Engineering, Arbaminch University, Ethiopia">Faculty of Computing and Software Engineering, Arbaminch University, Ethiopia</option>';
+            Institution_options_str  += '<option value="Faculty of Engineering, Shahid Bahonar University of Kerman, Jomuri Street, Kerman, Iran">Faculty of Engineering, Shahid Bahonar University of Kerman, Jomuri Street, Kerman, Iran</option>';
+            Institution_options_str  += '<option value="First Surgical Department, EvangelismosÃ¢ÂÂ General Hospital of Athens, Athens, Greece">First Surgical Department, EvangelismosÃ¢ÂÂ General Hospital of Athens, Athens, Greece</option>';
+            Institution_options_str  += '<option value="Forestry College, Xinyang College of Agriculture and Forestry, Xinyang, Henan, China">Forestry College, Xinyang College of Agriculture and Forestry, Xinyang, Henan, China</option>';
+            Institution_options_str  += '<option value="General Medicine Faculty, Neurology Department, Ã¢ÂÂVasile GoldisÃ¢ÂÂ West University, Arad, Romania">General Medicine Faculty, Neurology Department, Ã¢ÂÂVasile GoldisÃ¢ÂÂ West University, Arad, Romania</option>';
+            Institution_options_str  += '<option value="Gladstone Institute of Virology and Immunology, San Francisco, California, USA">Gladstone Institute of Virology and Immunology, San Francisco, California, USA</option>';
+            Institution_options_str  += '<option value="Grandhope Biotech Co. Ltd, Guangzhou International Business Incubator, Guangzhou Science Park, Guangzhou, China">Grandhope Biotech Co. Ltd, Guangzhou International Business Incubator, Guangzhou Science Park, Guangzhou, China</option>';
+            Institution_options_str  += '<option value="Harokopio University of Athens">Harokopio University of Athens</option>';
+            Institution_options_str  += '<option value="Hebei University of Technology, School of Artificial Intelligence, Tianjin, China">Hebei University of Technology, School of Artificial Intelligence, Tianjin, China</option>';
+            Institution_options_str  += '<option value="Institute for Interdisciplinary Research, Jianghan University, Wuhan, 430056 Hubei, China">Institute for Interdisciplinary Research, Jianghan University, Wuhan, 430056 Hubei, China</option>';
+            Institution_options_str  += '<option value="Institute for Systems Biology, Jianghan University, Wuhan, 430056 Hubei, China">Institute for Systems Biology, Jianghan University, Wuhan, 430056 Hubei, China</option>';
+            Institution_options_str  += '<option value="Institute of Biochemistry, University of Sindh Jamshoro, Pakistan">Institute of Biochemistry, University of Sindh Jamshoro, Pakistan</option>';
+            Institution_options_str  += '<option value="Institute of Biomedicine, College of Life Science and Technology, National Engineering Research Center of Genetic Medicine, Jinan University, Guangzhou, China">Institute of Biomedicine, College of Life Science and Technology, National Engineering Research Center of Genetic Medicine, Jinan University, Guangzhou, China</option>';
+            Institution_options_str  += '<option value="Institute of Physical Education,Qingdao University of Science and Technology,Qingdao Shandong, China">Institute of Physical Education,Qingdao University of Science and Technology,Qingdao Shandong, China</option>';
+            Institution_options_str  += '<option value="Institute of Plant Sciences, University of Sindh, Jamshoro, Pakistan">Institute of Plant Sciences, University of Sindh, Jamshoro, Pakistan</option>';
+            Institution_options_str  += '<option value="Institute of Tropical Medicine, Nagasaki University, Nagasaki, and First Department of Internal Medicine, Yokohama City University School of Medicine, Yokohama, Japan">Institute of Tropical Medicine, Nagasaki University, Nagasaki, and First Department of Internal Medicine, Yokohama City University School of Medicine, Yokohama, Japan</option>';
+            Institution_options_str  += '<option value="Institute on Aging, University of Pennsylvania School of Medicine, Philadelphia, Pennsylvania 19104, USA">Institute on Aging, University of Pennsylvania School of Medicine, Philadelphia, Pennsylvania 19104, USA</option>';
+            Institution_options_str  += '<option value="International Centre for Genetic Engineering and Biotechnology, Biopesticide group, Wernher and Beit Building (South) UCT Campus Cape Town, South Africa">International Centre for Genetic Engineering and Biotechnology, Biopesticide group, Wernher and Beit Building (South) UCT Campus Cape Town, South Africa</option>';
+            Institution_options_str  += '<option value="Jiangsu Normal University, Xuzhou City, Jiangsu Province, China">Jiangsu Normal University, Xuzhou City, Jiangsu Province, China</option>';
+            Institution_options_str  += '<option value="Key Laboratory of Coarse Cereal Processing, Ministry of Agriculture and Rural Affair, Chengdu University Chengdu, China">Key Laboratory of Coarse Cereal Processing, Ministry of Agriculture and Rural Affair, Chengdu University Chengdu, China</option>';
+            Institution_options_str  += '<option value="Key Laboratory of Geospatial Technology for the Middle and Lower Yellow River Regions, Ministry of Education, Kaifeng, Henan, China">Key Laboratory of Geospatial Technology for the Middle and Lower Yellow River Regions, Ministry of Education, Kaifeng, Henan, China</option>';
+            Institution_options_str  += '<option value="Laboratory of Anatomy, Histology and Embryology, College of Veterinary Medicine, AraÃÂ§atuba, SÃÂ£o Paulo, 16050-680, Brazil">Laboratory of Anatomy, Histology and Embryology, College of Veterinary Medicine, AraÃÂ§atuba, SÃÂ£o Paulo, 16050-680, Brazil</option>';
+            Institution_options_str  += '<option value="Laboratory of Animal Virology and Cell Culture, UNESP-University of SÃÂ£o Paulo State, SÃÂ£o Paulo, Brazil">Laboratory of Animal Virology and Cell Culture, UNESP-University of SÃÂ£o Paulo State, SÃÂ£o Paulo, Brazil</option>';
+            Institution_options_str  += '<option value="Laboratory of Parasitology of the Moulay Ismail Military Hospital of Meknes, Meknes, Morocco">Laboratory of Parasitology of the Moulay Ismail Military Hospital of Meknes, Meknes, Morocco</option>';
+            Institution_options_str  += '<option value="Merck Research Laboratories, Merck & Company, Inc., West Point, Pennsylvania, USA">Merck Research Laboratories, Merck & Company, Inc., West Point, Pennsylvania, USA</option>';
+            Institution_options_str  += '<option value="Multidisciplinary Research Center, College of Science, Shantou University, Shantou, China">Multidisciplinary Research Center, College of Science, Shantou University, Shantou, China</option>';
+            Institution_options_str  += '<option value="Nansen-Zhu International Research Center, Institute of Atmospheric Physics, Chinese Academy of Sciences, Beijing, China">Nansen-Zhu International Research Center, Institute of Atmospheric Physics, Chinese Academy of Sciences, Beijing, China</option>';
+            Institution_options_str  += '<option value="Neurology Department, Ã¢ÂÂIuliu HatieganuÃ¢ÂÂ University of Medicine and Pharmacy, Cluj-Napoca, Romania">Neurology Department, Ã¢ÂÂIuliu HatieganuÃ¢ÂÂ University of Medicine and Pharmacy, Cluj-Napoca, Romania</option>';
+            Institution_options_str  += '<option value="Neurology Department, Ã¢ÂÂVictor BabesÃ¢ÂÂ University of Medicine and Pharmacy, Timisoara, Romania">Neurology Department, Ã¢ÂÂVictor BabesÃ¢ÂÂ University of Medicine and Pharmacy, Timisoara, Romania</option>';
+            Institution_options_str  += '<option value="Ningbo Institue of Oceanography Ningbo, Zhejiang, China">Ningbo Institue of Oceanography Ningbo, Zhejiang, China</option>';
+            Institution_options_str  += '<option value="North China University of Water Resources and Electric Power, Zhengzhou, Henan, P.R. China">North China University of Water Resources and Electric Power, Zhengzhou, Henan, P.R. China</option>';
+            Institution_options_str  += '<option value="Physical Medicine and Rehabilitation Department, DiyarbakÃÂ±r DaÃÂkapÃÂ± State Hospital, Diyarbakir, Turkey">Physical Medicine and Rehabilitation Department, DiyarbakÃÂ±r DaÃÂkapÃÂ± State Hospital, Diyarbakir, Turkey</option>';
+            Institution_options_str  += '<option value="Plant Protection Research Group, Rwanda Agriculture and Animal Resources Development Board [RAB] Kigali, Rwanda">Plant Protection Research Group, Rwanda Agriculture and Animal Resources Development Board [RAB] Kigali, Rwanda</option>';
+            Institution_options_str  += '<option value="Pritzker School of Medicine, University of Chicago, Chicago, Illinois">Pritzker School of Medicine, University of Chicago, Chicago, Illinois</option>';
+            Institution_options_str  += '<option value="Research Institute of Forest and Rangelands, National Botanical Garden of Iran, Tehran, Iran">Research Institute of Forest and Rangelands, National Botanical Garden of Iran, Tehran, Iran</option>';
+            Institution_options_str  += '<option value="Research Institute of Forests and Rangelands, Agricultural Research Education and Extension Organization (AREEO), Tehran, Iran">Research Institute of Forests and Rangelands, Agricultural Research Education and Extension Organization (AREEO), Tehran, Iran</option>';
+            Institution_options_str  += '<option value="STD-Unit, Department of Dermatology and Venerology, University of Essen, Germany">STD-Unit, Department of Dermatology and Venerology, University of Essen, Germany</option>';
+            Institution_options_str  += '<option value="School of Architecture and Civil Engineering, Chongqing Metropolitan College of Science and Technology, Yongchuan, Chongqing, China">School of Architecture and Civil Engineering, Chongqing Metropolitan College of Science and Technology, Yongchuan, Chongqing, China</option>';
+            Institution_options_str  += '<option value="School of Architecture and Engineering, Suqian College, Suqian, Jiangsu, China">School of Architecture and Engineering, Suqian College, Suqian, Jiangsu, China</option>';
+            Institution_options_str  += '<option value="School of Biological and Chemical Engineering, Nanyang Institute of Technology, Nanyang, Henan, China">School of Biological and Chemical Engineering, Nanyang Institute of Technology, Nanyang, Henan, China</option>';
+            Institution_options_str  += '<option value="School of Biology and Food Engineering, Fuyang Normal University, Fuyang, Anhui, China">School of Biology and Food Engineering, Fuyang Normal University, Fuyang, Anhui, China</option>';
+            Institution_options_str  += '<option value="School of Chinese Medicine, Shandong University of Traditional Chinese Medicine, Jinan, China">School of Chinese Medicine, Shandong University of Traditional Chinese Medicine, Jinan, China</option>';
+            Institution_options_str  += '<option value="School of Civil Engineering and Architecture, NingboTech University Ningbo, Zhejiang, China">School of Civil Engineering and Architecture, NingboTech University Ningbo, Zhejiang, China</option>';
+            Institution_options_str  += '<option value="School of Economics and Management Fuzhou University, Fuzhou, China">School of Economics and Management Fuzhou University, Fuzhou, China</option>';
+            Institution_options_str  += '<option value="School of Electrical & Computer Engineering, Chungbuk National University, 12 Gaeshin-dong, Heungduk-gu, Chungbuk 361-763, Korea">School of Electrical & Computer Engineering, Chungbuk National University, 12 Gaeshin-dong, Heungduk-gu, Chungbuk 361-763, Korea</option>';
+            Institution_options_str  += '<option value="School of Electrical, Electronic, Control and Instrumentation Engineering, Hanbat National University, San 16-1, Duckmyoung-dong, Yuseong-gu, Dae- jeon 305-716, Korea">School of Electrical, Electronic, Control and Instrumentation Engineering, Hanbat National University, San 16-1, Duckmyoung-dong, Yuseong-gu, Dae- jeon 305-716, Korea</option>';
+            Institution_options_str  += '<option value="School of Food and Bioengineering, Chengdu University, Chengdu, China">School of Food and Bioengineering, Chengdu University, Chengdu, China</option>';
+            Institution_options_str  += '<option value="School of Foreign Language, Chizhou University, Chizhou City, China">School of Foreign Language, Chizhou University, Chizhou City, China</option>';
+            Institution_options_str  += '<option value="School of Humanities, Tongji University, Shanghai City, China">School of Humanities, Tongji University, Shanghai City, China</option>';
+            Institution_options_str  += '<option value="School of Intelligent Construction, Luzhou vocational and technical college, Luzhou, Sichuan, China">School of Intelligent Construction, Luzhou vocational and technical college, Luzhou, Sichuan, China</option>';
+            Institution_options_str  += '<option value="School of Life Sciences, Jiangsu Normal University, Xuzhou, 221116 Jiangsu, China">School of Life Sciences, Jiangsu Normal University, Xuzhou, 221116 Jiangsu, China</option>';
+            Institution_options_str  += '<option value="School of mechanical and electrical engineering, North China institute of science & technology, Hebei Key Laboratory of Safety Monitoring of Mining Equipment, Langfang City, Hebei Province, China">School of mechanical and electrical engineering, North China institute of science & technology, Hebei Key Laboratory of Safety Monitoring of Mining Equipment, Langfang City, Hebei Province, China</option>';
+            Institution_options_str  += '<option value="Service d&apos;anatomie-pathologie, d&apos;Embryologie et de Foetopathologie, CHU-Centre de MaternitÃÂ© et de NÃÂ©onatologie, Tunis, Tunisia">Service d&apos;anatomie-pathologie, d&apos;Embryologie et de Foetopathologie, CHU-Centre de MaternitÃÂ© et de NÃÂ©onatologie, Tunis, Tunisia</option>';
+            Institution_options_str  += '<option value="Singapore General Hospital, Department of Dermatology, 20 College Rd, Academia Level 4, Singapore 169856">Singapore General Hospital, Department of Dermatology, 20 College Rd, Academia Level 4, Singapore 169856</option>';
+            Institution_options_str  += '<option value="State Key Laboratory of Atmospheric Boundary Layer Physics and Atmospheric Chemistry (LAPC) Institute of Atmospheric Physics, Chinese Academy of Sciences, Beijing, China">State Key Laboratory of Atmospheric Boundary Layer Physics and Atmospheric Chemistry (LAPC) Institute of Atmospheric Physics, Chinese Academy of Sciences, Beijing, China</option>';
+            Institution_options_str  += '<option value="Sulaimany polytechnic University -College of applied science, Iraq">Sulaimany polytechnic University -College of applied science, Iraq</option>';
+            Institution_options_str  += '<option value="The First People&apos;s Hospital of Xingtai, Xingtai, China">The First People&apos;s Hospital of Xingtai, Xingtai, China</option>';
+            Institution_options_str  += '<option value="Tianjin Key Laboratory of Food and Biotechnology, School of Biotechnology and Food Science, Tianjin University of Commerce, 300134 Tianjin, China">Tianjin Key Laboratory of Food and Biotechnology, School of Biotechnology and Food Science, Tianjin University of Commerce, 300134 Tianjin, China</option>';
+            Institution_options_str  += '<option value="Tianjin University of Commerce, School of Economics, Tianjin, China">Tianjin University of Commerce, School of Economics, Tianjin, China</option>';
+            Institution_options_str  += '<option value="Titu Maiorescu University (TMU) in Bucharest">Titu Maiorescu University (TMU) in Bucharest</option>';
+            Institution_options_str  += '<option value="Titu Maiorescu University (TMU) in Bucharest, Romania">Titu Maiorescu University (TMU) in Bucharest, Romania</option>';
+            Institution_options_str  += '<option value="Unavailable">Unavailable</option>';
+            Institution_options_str  += '<option value="Unite de Recherche sur les Composes antioxydants, Stress Oxydant, Elements Traces et Maladies Metaboliques, Ecole Superieure des Sciences et Techniques de la Sante de Tunis, Tunisia">Unite de Recherche sur les Composes antioxydants, Stress Oxydant, Elements Traces et Maladies Metaboliques, Ecole Superieure des Sciences et Techniques de la Sante de Tunis, Tunisia</option>';
+            Institution_options_str  += '<option value="University of Yuncheng, Department of arts and crafts design, Yuncheng, Shanxi">University of Yuncheng, Department of arts and crafts design, Yuncheng, Shanxi</option>';
+            Institution_options_str  += '<option value="Walter Reed Army Medical Centre, Washington DC, USA">Walter Reed Army Medical Centre, Washington DC, USA</option>';
+            Institution_options_str  += '<option value="Yale School of Medicine, Yale University, New Haven, USA">Yale School of Medicine, Yale University, New Haven, USA</option>';
+            Institution_options_str  += '<option value="Young Researchers Club, Ardabil Branch, Islamic Azad University, Ardabil, Iran">Young Researchers Club, Ardabil Branch, Islamic Azad University, Ardabil, Iran</option>';
+            Institution_options_str  += '<option value="and Immunopathology Section, Laboratory of Immunobiology, National Cancer Institute-Frederick Cancer Research and Development Center, Frederick, Maryland, USA">and Immunopathology Section, Laboratory of Immunobiology, National Cancer Institute-Frederick Cancer Research and Development Center, Frederick, Maryland, USA</option>';
+            sel_Institution.innerHTML = Institution_options_str;
+            div_Institution.appendChild(sel_Institution);
+            var lab_Institution = document.createElement('div');
+            lab_Institution.innerHTML = 'Institution';
+            lab_Institution.className = 'filterlabel';
+            div_Institution.appendChild(lab_Institution);
+            var reset_Institution = document.createElement('div');
+            reset_Institution.innerHTML = 'clear filter';
+            reset_Institution.className = 'filterlabel';
+            reset_Institution.onclick = function() {
+                var options = document.getElementById("sel_Institution").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Institution.appendChild(reset_Institution);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Journal = document.createElement('div');
+            div_Journal.id = "div_Journal";
+            div_Journal.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Journal);
+            sel_Journal = document.createElement('select');
+            sel_Journal.multiple = true;
+            sel_Journal.size = 10;
+            sel_Journal.id = "sel_Journal";
+            var Journal_options_str = "<option value='' unselected></option>";
+            sel_Journal.onchange = function(){filterFunc()};
+            Journal_options_str  += '<option value="Acta Mechanica Sinica">Acta Mechanica Sinica</option>';
+            Journal_options_str  += '<option value="Advances in Atmospheric Sciences">Advances in Atmospheric Sciences</option>';
+            Journal_options_str  += '<option value="Advances in Human Biology">Advances in Human Biology</option>';
+            Journal_options_str  += '<option value="Anatomy & Cell Biology">Anatomy & Cell Biology</option>';
+            Journal_options_str  += '<option value="Annals of Saudi Medicine">Annals of Saudi Medicine</option>';
+            Journal_options_str  += '<option value="Archives of Virology">Archives of Virology</option>';
+            Journal_options_str  += '<option value="Australasian Medical Journal">Australasian Medical Journal</option>';
+            Journal_options_str  += '<option value="Bali Medical Journal">Bali Medical Journal</option>';
+            Journal_options_str  += '<option value="Canadian Respiratory Journal">Canadian Respiratory Journal</option>';
+            Journal_options_str  += '<option value="Cellular & Molecular Immunology">Cellular & Molecular Immunology</option>';
+            Journal_options_str  += '<option value="Central European Journal of Chemistry">Central European Journal of Chemistry</option>';
+            Journal_options_str  += '<option value="ChemElectroChem">ChemElectroChem</option>';
+            Journal_options_str  += '<option value="Egyptian Journal of Petroleum">Egyptian Journal of Petroleum</option>';
+            Journal_options_str  += '<option value="European Review for Medical and Pharmacological Sciences">European Review for Medical and Pharmacological Sciences</option>';
+            Journal_options_str  += '<option value="Facial Plastic Surgery & Aesthetic Medicine">Facial Plastic Surgery & Aesthetic Medicine</option>';
+            Journal_options_str  += '<option value="Fertility and Sterility">Fertility and Sterility</option>';
+            Journal_options_str  += '<option value="Genetika">Genetika</option>';
+            Journal_options_str  += '<option value="HIV Clinical Trials">HIV Clinical Trials</option>';
+            Journal_options_str  += '<option value="Human Reproduction">Human Reproduction</option>';
+            Journal_options_str  += '<option value="Indian Journal of Dermatology">Indian Journal of Dermatology</option>';
+            Journal_options_str  += '<option value="Indian Journal of Ophthalmology">Indian Journal of Ophthalmology</option>';
+            Journal_options_str  += '<option value="Infection and Immunity">Infection and Immunity</option>';
+            Journal_options_str  += '<option value="International Journal of Advanced Computer Science and Applications(IJACSA)">International Journal of Advanced Computer Science and Applications(IJACSA)</option>';
+            Journal_options_str  += '<option value="International Journal of Colorectal Disease">International Journal of Colorectal Disease</option>';
+            Journal_options_str  += '<option value="International Journal of Control, Automation and Systems">International Journal of Control, Automation and Systems</option>';
+            Journal_options_str  += '<option value="International Journal of Medical Science and Public Health">International Journal of Medical Science and Public Health</option>';
+            Journal_options_str  += '<option value="Journal of Insect Behavior">Journal of Insect Behavior</option>';
+            Journal_options_str  += '<option value="Journal of Medical Science and Clinical Research">Journal of Medical Science and Clinical Research</option>';
+            Journal_options_str  += '<option value="Journal of Molecular Biochemistry">Journal of Molecular Biochemistry</option>';
+            Journal_options_str  += '<option value="Journal of Pharmacology & Pharmacotherapeutics">Journal of Pharmacology & Pharmacotherapeutics</option>';
+            Journal_options_str  += '<option value="Journal of Theoretical Probability">Journal of Theoretical Probability</option>';
+            Journal_options_str  += '<option value="Journal of the Korean Data & Information Science Society">Journal of the Korean Data & Information Science Society</option>';
+            Journal_options_str  += '<option value="PNAS: Proceedings of the National Academy of Sciences of the United States of America">PNAS: Proceedings of the National Academy of Sciences of the United States of America</option>';
+            Journal_options_str  += '<option value="Pan African Medical Journal (PAMJ)">Pan African Medical Journal (PAMJ)</option>';
+            Journal_options_str  += '<option value="Preprints.org">Preprints.org</option>';
+            Journal_options_str  += '<option value="Rairo-Operations Research">Rairo-Operations Research</option>';
+            Journal_options_str  += '<option value="Revista Romana de Neurologie (Romanian Journal of Neurology)">Revista Romana de Neurologie (Romanian Journal of Neurology)</option>';
+            Journal_options_str  += '<option value="Romanian Journal of Internal Medicine">Romanian Journal of Internal Medicine</option>';
+            Journal_options_str  += '<option value="Romanian Journal of Morphology and Embryology">Romanian Journal of Morphology and Embryology</option>';
+            Journal_options_str  += '<option value="The Bone and Joint Journal">The Bone and Joint Journal</option>';
+            Journal_options_str  += '<option value="The Journal of Neuroscience : The Official Journal of the Society for Neuroscience">The Journal of Neuroscience : The Official Journal of the Society for Neuroscience</option>';
+            Journal_options_str  += '<option value="Tissue Engineering. Part A">Tissue Engineering. Part A</option>';
+            sel_Journal.innerHTML = Journal_options_str;
+            div_Journal.appendChild(sel_Journal);
+            var lab_Journal = document.createElement('div');
+            lab_Journal.innerHTML = 'Journal';
+            lab_Journal.className = 'filterlabel';
+            div_Journal.appendChild(lab_Journal);
+            var reset_Journal = document.createElement('div');
+            reset_Journal.innerHTML = 'clear filter';
+            reset_Journal.className = 'filterlabel';
+            reset_Journal.onclick = function() {
+                var options = document.getElementById("sel_Journal").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Journal.appendChild(reset_Journal);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Institution_Last_Two = document.createElement('div');
+            div_Institution_Last_Two.id = "div_Institution_Last_Two";
+            div_Institution_Last_Two.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Institution_Last_Two);
+            sel_Institution_Last_Two = document.createElement('select');
+            sel_Institution_Last_Two.multiple = true;
+            sel_Institution_Last_Two.size = 10;
+            sel_Institution_Last_Two.id = "sel_Institution_Last_Two";
+            var Institution_Last_Two_options_str = "<option value='' unselected></option>";
+            sel_Institution_Last_Two.onchange = function(){filterFunc()};
+            Institution_Last_Two_options_str  += '<option value="Abuja, Nigeria">Abuja, Nigeria</option>';
+            Institution_Last_Two_options_str  += '<option value="Ahmedabad, India">Ahmedabad, India</option>';
+            Institution_Last_Two_options_str  += '<option value="Aligarh, India">Aligarh, India</option>';
+            Institution_Last_Two_options_str  += '<option value="Anshan, China">Anshan, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Aracatuba, Brazil">Aracatuba, Brazil</option>';
+            Institution_Last_Two_options_str  += '<option value="Arad, Romania">Arad, Romania</option>';
+            Institution_Last_Two_options_str  += '<option value="Arba Minch, Ethiopia">Arba Minch, Ethiopia</option>';
+            Institution_Last_Two_options_str  += '<option value="Ardabil, Iran">Ardabil, Iran</option>';
+            Institution_Last_Two_options_str  += '<option value="Athens, Greece">Athens, Greece</option>';
+            Institution_Last_Two_options_str  += '<option value="Baoding, China">Baoding, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Beijing, China">Beijing, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Bojnord, Iran">Bojnord, Iran</option>';
+            Institution_Last_Two_options_str  += '<option value="Bucharest, Romania">Bucharest, Romania</option>';
+            Institution_Last_Two_options_str  += '<option value="Busan, South Korea">Busan, South Korea</option>';
+            Institution_Last_Two_options_str  += '<option value="Cabanatuan, Philippines">Cabanatuan, Philippines</option>';
+            Institution_Last_Two_options_str  += '<option value="Cairo, Egypt">Cairo, Egypt</option>';
+            Institution_Last_Two_options_str  += '<option value="Cape Town, South Africa">Cape Town, South Africa</option>';
+            Institution_Last_Two_options_str  += '<option value="Changsha, China">Changsha, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Chengdu, China">Chengdu, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Chicago, Illinois">Chicago, Illinois</option>';
+            Institution_Last_Two_options_str  += '<option value="Chizhou City, China">Chizhou City, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Chongqing, China">Chongqing, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Cluj-Napoca, Romania">Cluj-Napoca, Romania</option>';
+            Institution_Last_Two_options_str  += '<option value="Daejeon, Korea">Daejeon, Korea</option>';
+            Institution_Last_Two_options_str  += '<option value="Dalian, China">Dalian, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Dehradun, India">Dehradun, India</option>';
+            Institution_Last_Two_options_str  += '<option value="Delhi, India">Delhi, India</option>';
+            Institution_Last_Two_options_str  += '<option value="Diyarbakir, Turkey">Diyarbakir, Turkey</option>';
+            Institution_Last_Two_options_str  += '<option value="Düsseldorf, Germany">Düsseldorf, Germany</option>';
+            Institution_Last_Two_options_str  += '<option value="Enathur, India">Enathur, India</option>';
+            Institution_Last_Two_options_str  += '<option value="Essen, Germany">Essen, Germany</option>';
+            Institution_Last_Two_options_str  += '<option value="Frederick City, USA">Frederick City, USA</option>';
+            Institution_Last_Two_options_str  += '<option value="Fuzhou, China">Fuzhou, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Gaesin-dong, Korea">Gaesin-dong, Korea</option>';
+            Institution_Last_Two_options_str  += '<option value="Gorgan, Iran">Gorgan, Iran</option>';
+            Institution_Last_Two_options_str  += '<option value="Guangzhou, China">Guangzhou, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Guizhou, China">Guizhou, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Hanamkonda, India">Hanamkonda, India</option>';
+            Institution_Last_Two_options_str  += '<option value="Harbin, China">Harbin, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Hefei, China">Hefei, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Henan, China">Henan, China</option>';
+            Institution_Last_Two_options_str  += '<option value="IkSan, South Korea">IkSan, South Korea</option>';
+            Institution_Last_Two_options_str  += '<option value="Islamabad, Pakistan">Islamabad, Pakistan</option>';
+            Institution_Last_Two_options_str  += '<option value="Jamshoro, Pakistan">Jamshoro, Pakistan</option>';
+            Institution_Last_Two_options_str  += '<option value="Jinan, China">Jinan, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Kaifeng, China">Kaifeng, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Kerman, Iran">Kerman, Iran</option>';
+            Institution_Last_Two_options_str  += '<option value="Kigali, Rwanda">Kigali, Rwanda</option>';
+            Institution_Last_Two_options_str  += '<option value="Kohalpur, Nepal">Kohalpur, Nepal</option>';
+            Institution_Last_Two_options_str  += '<option value="Langfang City, China">Langfang City, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Liverpool, UK">Liverpool, UK</option>';
+            Institution_Last_Two_options_str  += '<option value="Luzhou, China">Luzhou, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Meknes, Morocco">Meknes, Morocco</option>';
+            Institution_Last_Two_options_str  += '<option value="Milan, Italy">Milan, Italy</option>';
+            Institution_Last_Two_options_str  += '<option value="Nagasaki, Japan">Nagasaki, Japan</option>';
+            Institution_Last_Two_options_str  += '<option value="Nanchang, China">Nanchang, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Nanyang, China">Nanyang, China</option>';
+            Institution_Last_Two_options_str  += '<option value="New Haven, USA">New Haven, USA</option>';
+            Institution_Last_Two_options_str  += '<option value="Ningbo, China">Ningbo, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Nishihara, Japan">Nishihara, Japan</option>';
+            Institution_Last_Two_options_str  += '<option value="Palermo, Italy">Palermo, Italy</option>';
+            Institution_Last_Two_options_str  += '<option value="Parsabad, Iran">Parsabad, Iran</option>';
+            Institution_Last_Two_options_str  += '<option value="Philadelphia, USA">Philadelphia, USA</option>';
+            Institution_Last_Two_options_str  += '<option value="Pokhara, Nepal">Pokhara, Nepal</option>';
+            Institution_Last_Two_options_str  += '<option value="Pondicherry, India">Pondicherry, India</option>';
+            Institution_Last_Two_options_str  += '<option value="Qingdao Shandong, China">Qingdao Shandong, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Ridgefield, USA">Ridgefield, USA</option>';
+            Institution_Last_Two_options_str  += '<option value="Saifai, India">Saifai, India</option>';
+            Institution_Last_Two_options_str  += '<option value="San Francisco, USA">San Francisco, USA</option>';
+            Institution_Last_Two_options_str  += '<option value="Sao Paulo, Brazil">Sao Paulo, Brazil</option>';
+            Institution_Last_Two_options_str  += '<option value="Seongnam, South Korea">Seongnam, South Korea</option>';
+            Institution_Last_Two_options_str  += '<option value="Seoul, Korea">Seoul, Korea</option>';
+            Institution_Last_Two_options_str  += '<option value="Seoul, South Korea">Seoul, South Korea</option>';
+            Institution_Last_Two_options_str  += '<option value="Shabestar, Iran">Shabestar, Iran</option>';
+            Institution_Last_Two_options_str  += '<option value="Shanghai City, China">Shanghai City, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Shangluo, China">Shangluo, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Shantou, China">Shantou, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Shanxi, China">Shanxi, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Shiraz, Iran">Shiraz, Iran</option>';
+            Institution_Last_Two_options_str  += '<option value="Singapore, Singapore">Singapore, Singapore</option>';
+            Institution_Last_Two_options_str  += '<option value="Sousse, Tunisia">Sousse, Tunisia</option>';
+            Institution_Last_Two_options_str  += '<option value="St. Louis, USA">St. Louis, USA</option>';
+            Institution_Last_Two_options_str  += '<option value="Stanford, USA">Stanford, USA</option>';
+            Institution_Last_Two_options_str  += '<option value="Sulaymaniyah, Iraq">Sulaymaniyah, Iraq</option>';
+            Institution_Last_Two_options_str  += '<option value="Suqian, China">Suqian, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Surendranagar, India">Surendranagar, India</option>';
+            Institution_Last_Two_options_str  += '<option value="Suzhou, China">Suzhou, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Tabriz, Iran">Tabriz, Iran</option>';
+            Institution_Last_Two_options_str  += '<option value="Taian, China">Taian, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Tehran, Iran">Tehran, Iran</option>';
+            Institution_Last_Two_options_str  += '<option value="Tianjin, China">Tianjin, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Timisoara, Romania">Timisoara, Romania</option>';
+            Institution_Last_Two_options_str  += '<option value="Tokyo, Japan">Tokyo, Japan</option>';
+            Institution_Last_Two_options_str  += '<option value="Tunis, Tunisia">Tunis, Tunisia</option>';
+            Institution_Last_Two_options_str  += '<option value="USA, USA">USA, USA</option>';
+            Institution_Last_Two_options_str  += '<option value="Vienna, Austria">Vienna, Austria</option>';
+            Institution_Last_Two_options_str  += '<option value="Washington DC, USA">Washington DC, USA</option>';
+            Institution_Last_Two_options_str  += '<option value="Wuhan, China">Wuhan, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Xi&apos;an, China">Xi&apos;an, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Xingtai, China">Xingtai, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Xining, China">Xining, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Xinyang, China">Xinyang, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Xuzhou City, China">Xuzhou City, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Xuzhou, China">Xuzhou, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Yingzhou, China">Yingzhou, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Yokohama, Japan">Yokohama, Japan</option>';
+            Institution_Last_Two_options_str  += '<option value="Yongchuan, China">Yongchuan, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Zhengzhou, China">Zhengzhou, China</option>';
+            Institution_Last_Two_options_str  += '<option value="Zi gong, China">Zi gong, China</option>';
+            sel_Institution_Last_Two.innerHTML = Institution_Last_Two_options_str;
+            div_Institution_Last_Two.appendChild(sel_Institution_Last_Two);
+            var lab_Institution_Last_Two = document.createElement('div');
+            lab_Institution_Last_Two.innerHTML = 'Institution_Last_Two';
+            lab_Institution_Last_Two.className = 'filterlabel';
+            div_Institution_Last_Two.appendChild(lab_Institution_Last_Two);
+            var reset_Institution_Last_Two = document.createElement('div');
+            reset_Institution_Last_Two.innerHTML = 'clear filter';
+            reset_Institution_Last_Two.className = 'filterlabel';
+            reset_Institution_Last_Two.onclick = function() {
+                var options = document.getElementById("sel_Institution_Last_Two").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Institution_Last_Two.appendChild(reset_Institution_Last_Two);
+        resetLabels([layer_LocationsRecordID_2]);
+        map.on("zoomend", function(){
+            resetLabels([layer_LocationsRecordID_2]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_LocationsRecordID_2]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_LocationsRecordID_2]);
+        });
+        </script>
+    </body>
+</html>
